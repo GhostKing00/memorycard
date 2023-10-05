@@ -1,0 +1,189 @@
+#создай приложение для запоминания информации
+
+#подключение библиотек
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QHBoxLayout, QVBoxLayout, QLabel, QMessageBox, QRadioButton, QGroupBox, QButtonGroup
+from random import *
+
+#Вопросы
+
+right_answer = list()
+wrong1 = list()
+wrong2 = list()
+wrong3 = list()
+Q = 0
+right = 0
+
+class Question():
+    def __init__(self, questions, right_answer, wrong1, wrong2, wrong3):
+        self.questions = questions
+        self.right_answer = right_answer
+        self.wrong1 = wrong1
+        self.wrong2 = wrong2
+        self.wrong3 = wrong3
+
+
+questions_list = list()
+
+questions_list.append(Question('Какой сейчас год?', '2023','2022','2021','2020'))
+questions_list.append(Question('Формула углекислого газа', 'CO2','CO3','CO','CO4'))
+questions_list.append(Question('Самая большая по площади страна?', 'РФ','США','Китай','Индия'))
+
+
+
+def ask(q: Question):
+    shuffle(answers)
+    quest.setText(q.questions)
+    answers[0].setText(q.right_answer)
+    answers[1].setText(q.wrong1)
+    answers[2].setText(q.wrong2)
+    answers[3].setText(q.wrong3)
+    result.setText(q.right_answer)
+    show_question()
+
+#создание приложения и главного окна
+app = QApplication([])
+main_win = QWidget()
+main_win.setWindowTitle('Конкурс от Life or DIE')
+main_win.resize(200,400)
+
+def show_result():
+    RadioGroupBox.hide()
+    GroupBox.show()
+    btn_ask.hide()
+    btn_res.show()
+    print('Статистика:')
+    print('-Всего вопросов:', Q)
+    print('-Правильных ответов:', right)
+    print('Рейтинг:',round((right/Q*100),2))
+    result_yes_no.show()
+    
+
+
+def show_question():
+    RadioGroupBox.show()
+
+    GroupBox.hide()
+    
+    btn_ask.show()
+    btn_res.hide()
+    result_yes_no.hide()
+    RadioGroupBox1.setExclusive(False)
+    btn_answer1.setChecked(False)
+    btn_answer2.setChecked(False)
+    btn_answer3.setChecked(False)
+    btn_answer4.setChecked(False)
+    RadioGroupBox1.setExclusive(True)
+
+cur_question = -1
+
+def next_question():
+    cur_question = randint(0, len(questions_list)-1)
+    q = questions_list[cur_question]
+    ask(q)
+def show_correct(text):
+    result_yes_no.setText(text)
+    
+    show_result()
+
+def check_answer():
+    if answers[0].isChecked():
+        global right
+        global Q
+        Q+=1
+        right +=1
+        show_correct('Правильно!')
+
+    else:
+        
+        Q+=1
+        show_correct('Неправильно!')
+
+
+
+
+#создание виджетов главного окна
+layout_main = QVBoxLayout()
+line1 = QHBoxLayout()
+line2 = QHBoxLayout()
+line3 = QHBoxLayout()
+
+quest = QLabel('Самый сложный вопрос в мире(нажмите на флажок 1 чтобы правильно ответить)')
+line1.addWidget(quest)
+
+RadioGroupBox = QGroupBox('Варианты ответов')
+btn_answer1 = QRadioButton('1')
+btn_answer2 = QRadioButton('2')
+btn_answer3 = QRadioButton('3')
+btn_answer4 = QRadioButton('4')
+
+btn_ask = QPushButton('Ответить')
+RadioGroupBox1 = QButtonGroup()
+RadioGroupBox1.addButton(btn_answer1)
+RadioGroupBox1.addButton(btn_answer2)
+RadioGroupBox1.addButton(btn_answer3)
+RadioGroupBox1.addButton(btn_answer4)
+#расположение виджетов по лэйаутам
+layout_ans3 = QVBoxLayout()
+layout_ans2 = QVBoxLayout()
+layout_ans1 = QHBoxLayout()
+
+layout_ans2.addWidget(btn_answer1)
+layout_ans2.addWidget(btn_answer2)
+layout_ans3.addWidget(btn_answer3)
+layout_ans3.addWidget(btn_answer4)
+layout_ans1.addLayout(layout_ans2)
+layout_ans1.addLayout(layout_ans3)
+
+btn_answer1.setChecked(False)
+btn_answer2.setChecked(False)
+btn_answer3.setChecked(False)
+btn_answer4.setChecked(False)
+
+
+RadioGroupBox.setLayout(layout_ans1)
+
+
+GroupBox = QGroupBox('Результат')
+result_yes_no = QLabel('Правильно или нет...')
+result = QLabel('скоро появится...')
+btn_res = QPushButton('Следущий вопрос')
+layout_result1 = QVBoxLayout()
+layout_result = QVBoxLayout()
+layout_result.addWidget(result_yes_no)
+layout_result.addWidget(result,alignment = Qt.AlignCenter)
+
+GroupBox.setLayout(layout_result)
+
+line1.addWidget(quest,alignment = Qt.AlignCenter)
+
+RadioGroupBox.setMinimumSize(400,150)
+GroupBox.setMinimumSize(400,150)
+
+
+
+GroupBox.hide()
+btn_res.hide()
+result_yes_no.hide()
+
+line2.addWidget(RadioGroupBox,alignment = Qt.AlignBaseline)
+line2.addWidget(GroupBox,alignment = Qt.AlignBaseline)
+line3.addStretch(1)
+line3.addWidget(btn_ask, stretch=2,alignment = Qt.AlignVCenter)
+line3.addWidget(btn_res, stretch=2,alignment = Qt.AlignVCenter)
+line3.addStretch(1)
+layout_main.addLayout(line1)
+layout_main.addLayout(line2)
+layout_main.addLayout(line3)
+main_win.setLayout(layout_main)
+#обработка нажатий на переключатели
+
+answers = [btn_answer1, btn_answer2, btn_answer3, btn_answer4]
+
+btn_ask.clicked.connect(check_answer)
+btn_res.clicked.connect(next_question)
+#отображение окна приложения 
+main_win.setLayout(layout_main)
+
+main_win.show()
+app.exec_()
